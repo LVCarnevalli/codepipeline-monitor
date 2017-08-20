@@ -66,14 +66,14 @@ function onMessage() {
 }
 
 function addWidgets(self, data) {
-  self.widgets.push({
+  self.widgets.push(ko.observable({
     stage: data,
     x: 0,
     y: 0,
     width: Math.floor(4),
     height: Math.floor(3),
     auto_position: true
-  });
+  }));
 }
 
 function updateWidgets(self, stage, oldWidgets) {
@@ -82,16 +82,15 @@ function updateWidgets(self, stage, oldWidgets) {
     const node = element.data();
     const gridNode = element.data('_gridstack_node');
 
-    const widgets = oldWidgets;
-    widgets.stage = stage;
-    widgets.x = gridNode.x;
-    widgets.y = gridNode.y;
-    widgets.width = gridNode.width;
-    widgets.height = gridNode.height;
-    widgets.auto_position = false;
-
     if (node.stageId === stage.id) {
-      self.widgets.replace(oldWidgets, widgets);
+      oldWidgets({
+        stage: stage,
+        x: gridNode.x,
+        y: gridNode.y,
+        width: gridNode.width,
+        height: gridNode.height,
+        auto_position: false
+      });
     }
   });
 }
@@ -101,7 +100,7 @@ function initGridstack() {
     this.widgets = ko.observableArray(widgets);
     this.addNewWidget = (stage) => {
       const oldWidgets = ko.utils.arrayFirst(this.widgets(), (currentWidgets) => {
-        return currentWidgets.stage.id == stage.id;
+        return currentWidgets().stage.id == stage.id;
       });
 
       if (oldWidgets) {

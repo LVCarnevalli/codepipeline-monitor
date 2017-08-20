@@ -28,6 +28,7 @@ body {
 
 .pipeline-name {
   padding: 20px;
+  height: 40%;
 }
 
 .stage-name {
