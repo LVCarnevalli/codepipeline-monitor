@@ -1,11 +1,35 @@
 <html>
 
 <head>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+  <link rel="stylesheet" href="bower_components/gridstack/dist/gridstack.css" />
+  <link rel="stylesheet" href="bower_components/gridstack/dist/gridstack-extra.css" />
+  <link rel="stylesheet" href="styles/monitor.css" />
+
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
+  <script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.js"></script>
+  <script type="text/javascript" src="bower_components/tether/dist/js/tether.js"></script>
+  <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+  <script type="text/javascript" src="bower_components/lodash/dist/lodash.js"></script>
+
+  <script type="text/javascript" src="bower_components/gridstack/dist/gridstack.all.js"></script>
+  <script type="text/javascript" src="bower_components/knockout/dist/knockout.js"></script>
+
   <script type="text/javascript" src="scripts/monitor.js"></script>
 </head>
 
 <body>
-  <button id="teste" />
+  <div class="container-fluid">
+    <h1>knockout.js Demo</h1>
+
+    <div>
+      <button data-bind="click: addNewWidget">Add new widget</button>
+    </div>
+
+    <br>
+
+    <div data-bind="component: {name: 'dashboard-grid', params: $data}"></div>
+  </div>
 </body>
 
 </html>

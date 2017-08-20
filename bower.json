@@ -2,7 +2,14 @@
   "name": "codepipeline-monitor",
   "private": true,
   "version": "0.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "bootstrap": "v4.0.0-alpha.6",
+    "jquery-ui": "^1.12.1",
+    "jquery": "^3.2.1",
+    "lodash": "^4.17.4",
+    "gridstack": "^0.3.0",
+    "knockout": "^3.4.2"
+  },
   "devDependencies": {
     "chai": "^4.1.1",
     "mocha": "^3.5.0"
