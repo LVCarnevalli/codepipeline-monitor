@@ -82,15 +82,16 @@ function updateWidgets(self, stage, oldWidgets) {
     const node = element.data();
     const gridNode = element.data('_gridstack_node');
 
+    const widgets = oldWidgets;
+    widgets.stage = stage;
+    widgets.x = gridNode.x;
+    widgets.y = gridNode.y;
+    widgets.width = gridNode.width;
+    widgets.height = gridNode.height;
+    widgets.auto_position = false;
+
     if (node.stageId === stage.id) {
-      self.widgets.replace(oldWidgets, {
-        stage: stage,
-        x: gridNode.x,
-        y: gridNode.y,
-        width: gridNode.width,
-        height: gridNode.height,
-        auto_position: false
-      });
+      self.widgets.replace(oldWidgets, widgets);
     }
   });
 }
@@ -111,25 +112,28 @@ function initGridstack() {
 
       switch (stage.status) {
         case 'Error':
-          document
-            .querySelector(`[data-stage-id="${stage.id}"]`)
-            .querySelector('.grid-stack-item-content')
-            .classList
-            .add('status-error');
+          $(document
+              .querySelector(`[data-stage-id="${stage.id}"]`)
+              .querySelector('.grid-stack-item-content'))
+            .removeClass('status-succeeded')
+            .removeClass('status-inprogress')
+            .addClass('status-error');
           break;
         case 'In Progress':
-          document
-            .querySelector(`[data-stage-id="${stage.id}"]`)
-            .querySelector('.grid-stack-item-content')
-            .classList
-            .add('status-inprogress');
+          $(document
+              .querySelector(`[data-stage-id="${stage.id}"]`)
+              .querySelector('.grid-stack-item-content'))
+            .removeClass('status-succeeded')
+            .removeClass('status-error')
+            .addClass('status-inprogress');
           break;
         case 'Succeeded':
-          document
-            .querySelector(`[data-stage-id="${stage.id}"]`)
-            .querySelector('.grid-stack-item-content')
-            .classList
-            .add('status-succeeded');
+          $(document
+              .querySelector(`[data-stage-id="${stage.id}"]`)
+              .querySelector('.grid-stack-item-content'))
+            .removeClass('status-inprogress')
+            .removeClass('status-error')
+            .addClass('status-succeeded');
           break;
       }
 
@@ -145,5 +149,5 @@ window.onload = () => {
   configureGridstack();
   initGridstack();
 
-  setTimeout(onMessage, 3000);
+  setInterval(onMessage, 3000);
 }
