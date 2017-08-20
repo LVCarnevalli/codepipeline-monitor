@@ -1,9 +1,35 @@
 body {
   padding: 20px;
+  background-color: #2c3e50;
+}
+
+.container-fluid {
+  padding: 0 !important;
 }
 
 .grid-stack-item-content {
   color: #2c3e50;
   text-align: center;
+  border-radius: 5px;
   background-color: #18bc9c;
+}
+
+.status-succeeded {
+  background-color: #18bc9c !important;
+}
+
+.status-error {
+  background-color: #f14a4a !important;
+}
+
+.status-inprogress {
+  background-color: #257acf !important;
+}
+
+.pipeline-name {
+  padding: 20px;
+}
+
+.stage-name {
+  font-weight: bold;
 }

@@ -34,11 +34,9 @@ function configureGridstack() {
       '<div class="grid-stack" data-bind="foreach: {data: widgets, afterRender: afterAddWidget}">',
       '   <div class="grid-stack-item" data-bind="attr: {\'data-stage-id\': $data.stage.id, \'data-gs-x\': $data.x, \'data-gs-y\': $data.y, \'data-gs-width\': $data.width, \'data-gs-height\': $data.height, \'data-gs-auto-position\': $data.auto_position}">',
       '       <div class="grid-stack-item-content">',
-      '         <h1 data-bind="text: stage.pipeline"/>',
-      '         <h5 data-bind="text: stage.name"/>',
-      '         <h5 data-bind="text: stage.type"/>',
-      '         <h5 data-bind="text: stage.status"/>',
-      '         <h5 data-bind="text: stage.lastExecution"/>',
+      '         <h1 class="pipeline-name" data-bind="text: stage.pipeline"/>',
+      '         <h2 class="stage-name" data-bind="text: stage.name"/>',
+      '         <h6 class="stage-last-execution" data-bind="text: stage.lastExecution"/>',
       '       </div>',
       '   </div>',
       '</div> '
@@ -72,7 +70,7 @@ function addWidgets(self, data) {
     stage: data,
     x: 0,
     y: 0,
-    width: Math.floor(3),
+    width: Math.floor(4),
     height: Math.floor(3),
     auto_position: true
   });
@@ -110,6 +108,31 @@ function initGridstack() {
       } else {
         addWidgets(this, stage);
       }
+
+      switch (stage.status) {
+        case 'Error':
+          document
+            .querySelector(`[data-stage-id="${stage.id}"]`)
+            .querySelector('.grid-stack-item-content')
+            .classList
+            .add('status-error');
+          break;
+        case 'In Progress':
+          document
+            .querySelector(`[data-stage-id="${stage.id}"]`)
+            .querySelector('.grid-stack-item-content')
+            .classList
+            .add('status-inprogress');
+          break;
+        case 'Succeeded':
+          document
+            .querySelector(`[data-stage-id="${stage.id}"]`)
+            .querySelector('.grid-stack-item-content')
+            .classList
+            .add('status-succeeded');
+          break;
+      }
+
       return false;
     };
   };
@@ -122,5 +145,5 @@ window.onload = () => {
   configureGridstack();
   initGridstack();
 
-  setInterval(onMessage, 3000);
+  setTimeout(onMessage, 3000);
 }

@@ -1,5 +1,9 @@
 'use strict';
 
+function format(value) {
+  return value.replace(/[\n\r]/g, '');
+}
+
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   const pipeline = {
     name: null,
@@ -20,10 +24,10 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
         const buildLastExecution = action.querySelectorAll('.pipelines-view-action-state-timestamp')[0].outerText;
 
         pipeline.stages.push({
-          type: buildType,
-          name: buildName,
-          status: buildStatus,
-          lastExecution: buildLastExecution
+          type: format(buildType),
+          name: format(buildName),
+          status: format(buildStatus),
+          lastExecution: format(buildLastExecution)
         });
       });
     });
