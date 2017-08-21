@@ -48,19 +48,25 @@ function onMessage() {
   chrome.tabs.query({
     currentWindow: true
   }, (tabs) => {
-    tabs.forEach((tab) => {
-      if (tab.url.includes(AWS_CODEPIPELINE_URL)) {
-        chrome.tabs.sendMessage(tab.id, {},
-          (pipeline) => {
-            if (pipeline) {
-              pipeline.stages.forEach((stage) => {
-                stage.id = stage.name + tab.id;
-                stage.pipeline = pipeline.name;
-                controller.addNewWidget(stage);
+    chrome.windows.getAll({
+      populate: true
+    }, function (windows) {
+      windows.forEach(function (window) {
+        window.tabs.forEach(function (tab) {
+          if (tab.url.includes(AWS_CODEPIPELINE_URL)) {
+            chrome.tabs.sendMessage(tab.id, {},
+              (pipeline) => {
+                if (pipeline) {
+                  pipeline.stages.forEach((stage) => {
+                    stage.id = stage.name + tab.id;
+                    stage.pipeline = pipeline.name;
+                    controller.addNewWidget(stage);
+                  });
+                }
               });
-            }
-          });
-      }
+          }
+        });
+      });
     });
   });
 }
