@@ -1,0 +1,2 @@
+"use strict";function focusOrCreateTab(e){chrome.windows.getAll({populate:!0},function(r){var t=null;for(var o in r){var a=r[o].tabs;for(var c in a){var n=a[c];if(n.url==e){t=n;break}}}t?chrome.tabs.update(t.id,{selected:!0}):chrome.tabs.create({url:e,selected:!0})})}var MONITOR_URL="monitor.html";chrome.browserAction.onClicked.addListener(function(e){focusOrCreateTab(chrome.extension.getURL(MONITOR_URL))});
+//# sourceMappingURL=background.js.map
