@@ -148,5 +148,5 @@ window.onload = () => {
   configureGridstack();
   initGridstack();
 
-  setInterval(onMessage, 3000);
+  setInterval(onMessage, 5000);
 }
