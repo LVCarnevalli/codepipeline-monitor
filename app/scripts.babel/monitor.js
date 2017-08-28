@@ -116,7 +116,7 @@ function initGridstack() {
       }
 
       switch (stage.status) {
-        case 'Error':
+        case 'Failed':
           $(document
               .querySelector(`[data-stage-id="${stage.id}"]`)
               .querySelector('.grid-stack-item-content'))
