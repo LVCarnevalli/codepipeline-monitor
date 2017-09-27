@@ -2,7 +2,7 @@
 Extensão do Google Chrome, utilizada para criar um monitor com as informações de build da AWS Code Pipeline.
 
 <p align="center"> 
-  <img src="https://preview.ibb.co/nsBFPQ/image.png" style="border: 2px solid; border-radius: 25px;">
+  <img src="https://preview.ibb.co/nsBFPQ/image.png">
 </p>
 
 ### Backlog:
