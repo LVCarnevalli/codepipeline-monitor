@@ -1,7 +1,9 @@
 # AWS CodePipeline Monitor
 Extensão do Google Chrome, utilizada para criar um monitor com as informações de build da AWS Code Pipeline.
 
-![alt text](https://preview.ibb.co/nsBFPQ/image.png)
+<p align="center"> 
+  <img src="https://preview.ibb.co/nsBFPQ/image.png" style="border: 2px solid; border-radius: 25px;">
+</p>
 
 ### Backlog:
 As melhorias e implementações podem ser conferidas no Trello: https://trello.com/b/KRBcA6tx/codepipeline-monitor
