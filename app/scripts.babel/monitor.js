@@ -152,7 +152,7 @@ function initGridstack() {
       });
 
       if (oldWidgets) {
-        if (stage.status != STATUS_SUCCEEDED || stage.id == oldWidgets().stage.id) {
+        if (stage.status == STATUS_IN_PROGRESS || stage.id == oldWidgets().stage.id) {
           updateWidgets(this, stage, oldWidgets);
         }
         if (oldWidgets().stage.status == STATUS_SUCCEEDED && stage.finished) {
