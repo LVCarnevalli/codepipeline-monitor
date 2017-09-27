@@ -2,6 +2,10 @@
 
 const AWS_CODEPIPELINE_URL = 'console.aws.amazon.com/codepipeline';
 
+const STATUS_SUCCEEDED = 'Succeeded';
+const STATUS_FAILED = 'Failed';
+const STATUS_IN_PROGRESS = 'In Progress';
+
 let widgets = [];
 let controller;
 
@@ -32,9 +36,9 @@ function configureGridstack() {
     },
     template: [
       '<div class="grid-stack" data-bind="foreach: {data: widgets, afterRender: afterAddWidget}">',
-      '   <div class="grid-stack-item" data-bind="attr: {\'data-stage-id\': $data.stage.id, \'data-gs-x\': $data.x, \'data-gs-y\': $data.y, \'data-gs-width\': $data.width, \'data-gs-height\': $data.height, \'data-gs-auto-position\': $data.auto_position}">',
+      '   <div class="grid-stack-item" data-bind="attr: {\'data-pipeline-id\': $data.stage.pipeline.id, \'data-gs-x\': $data.x, \'data-gs-y\': $data.y, \'data-gs-width\': $data.width, \'data-gs-height\': $data.height, \'data-gs-auto-position\': $data.auto_position}">',
       '       <div class="grid-stack-item-content">',
-      '         <h1 class="pipeline-name" data-bind="text: stage.pipeline"/>',
+      '         <h1 class="pipeline-name" data-bind="text: stage.pipeline.name"/>',
       '         <h2 class="stage-name" data-bind="text: stage.name"/>',
       '         <h6 class="stage-last-execution" data-bind="text: stage.lastExecution"/>',
       '       </div>',
@@ -59,7 +63,10 @@ function onMessage() {
                 if (pipeline) {
                   pipeline.stages.forEach((stage) => {
                     stage.id = stage.name + tab.id;
-                    stage.pipeline = pipeline.name;
+                    stage.pipeline = {
+                      id: pipeline.name + tab.id,
+                      name: pipeline.name
+                    };
                     controller.addNewWidget(stage);
                   });
                 }
@@ -80,17 +87,19 @@ function addWidgets(self, data) {
     height: Math.floor(3),
     auto_position: true
   }));
+
+  updateStatus(data);
 }
 
-function updateWidgets(self, stage, oldWidgets) {
+function updateWidgets(self, data, oldWidgets) {
   _.forEach($('.grid-stack > .grid-stack-item:visible'), (element) => {
     element = $(element);
     const node = element.data();
     const gridNode = element.data('_gridstack_node');
 
-    if (node.stageId === stage.id) {
+    if (node.pipelineId === data.pipeline.id) {
       oldWidgets({
-        stage: stage,
+        stage: data,
         x: gridNode.x,
         y: gridNode.y,
         width: gridNode.width,
@@ -99,6 +108,37 @@ function updateWidgets(self, stage, oldWidgets) {
       });
     }
   });
+
+  updateStatus(data);
+}
+
+function updateStatus(stage) {
+  switch (stage.status) {
+    case STATUS_FAILED:
+      $(document
+        .querySelector(`[data-pipeline-id="${stage.pipeline.id}"]`)
+        .querySelector('.grid-stack-item-content'))
+        .removeClass('status-succeeded')
+        .removeClass('status-inprogress')
+        .addClass('status-error');
+      break;
+    case STATUS_IN_PROGRESS:
+      $(document
+        .querySelector(`[data-pipeline-id="${stage.pipeline.id}"]`)
+        .querySelector('.grid-stack-item-content'))
+        .removeClass('status-succeeded')
+        .removeClass('status-error')
+        .addClass('status-inprogress');
+      break;
+    case STATUS_SUCCEEDED:
+      $(document
+        .querySelector(`[data-pipeline-id="${stage.pipeline.id}"]`)
+        .querySelector('.grid-stack-item-content'))
+        .removeClass('status-inprogress')
+        .removeClass('status-error')
+        .addClass('status-succeeded');
+      break;
+  }
 }
 
 function initGridstack() {
@@ -106,40 +146,19 @@ function initGridstack() {
     this.widgets = ko.observableArray(widgets);
     this.addNewWidget = (stage) => {
       const oldWidgets = ko.utils.arrayFirst(this.widgets(), (currentWidgets) => {
-        return currentWidgets().stage.id == stage.id;
+        return currentWidgets().stage.pipeline.id == stage.pipeline.id;
       });
 
       if (oldWidgets) {
-        updateWidgets(this, stage, oldWidgets);
+        if (stage.status == STATUS_IN_PROGRESS || stage.id == oldWidgets().stage.id) {
+          updateWidgets(this, stage, oldWidgets);
+        }
+        if (oldWidgets().stage.status != STATUS_IN_PROGRESS && stage.finished) {
+          stage.name = 'Completed';
+          updateWidgets(this, stage, oldWidgets);
+        }
       } else {
         addWidgets(this, stage);
-      }
-
-      switch (stage.status) {
-        case 'Failed':
-          $(document
-              .querySelector(`[data-stage-id="${stage.id}"]`)
-              .querySelector('.grid-stack-item-content'))
-            .removeClass('status-succeeded')
-            .removeClass('status-inprogress')
-            .addClass('status-error');
-          break;
-        case 'In Progress':
-          $(document
-              .querySelector(`[data-stage-id="${stage.id}"]`)
-              .querySelector('.grid-stack-item-content'))
-            .removeClass('status-succeeded')
-            .removeClass('status-error')
-            .addClass('status-inprogress');
-          break;
-        case 'Succeeded':
-          $(document
-              .querySelector(`[data-stage-id="${stage.id}"]`)
-              .querySelector('.grid-stack-item-content'))
-            .removeClass('status-inprogress')
-            .removeClass('status-error')
-            .addClass('status-succeeded');
-          break;
       }
 
       return false;
