@@ -17,11 +17,11 @@ As melhorias e implementações podem ser conferidas no Trello: https://trello.c
 # Desenvolvimento
 
 ### Ambiente:
-**Executar e atualizar o código automaticamente**
+**Executar e atualizar o código automaticamente:**
 
     gulp watch
 
-**Compilar versão final**
+**Compilar versão final:**
 
     gulp build
 
