@@ -38,9 +38,11 @@ function configureGridstack() {
       '<div class="grid-stack" data-bind="foreach: {data: widgets, afterRender: afterAddWidget}">',
       '   <div class="grid-stack-item" data-bind="attr: {\'data-pipeline-id\': $data.stage.pipeline.id, \'data-gs-x\': $data.x, \'data-gs-y\': $data.y, \'data-gs-width\': $data.width, \'data-gs-height\': $data.height, \'data-gs-auto-position\': $data.auto_position}">',
       '       <div class="grid-stack-item-content">',
-      '         <h1 class="pipeline-name" data-bind="text: stage.pipeline.name"/>',
-      '         <h2 class="stage-name" data-bind="text: stage.name"/>',
-      '         <h6 class="stage-last-execution" data-bind="text: stage.lastExecution"/>',
+      '         <div class="content">',
+      '           <h1 class="pipeline-name" data-bind="text: stage.pipeline.name"/>',
+      '           <h2 class="stage-name" data-bind="text: stage.name"/>',
+      '           <h6 class="stage-last-execution" data-bind="text: stage.lastExecution"/>',
+      '         </div>',
       '       </div>',
       '   </div>',
       '</div> '
@@ -150,10 +152,10 @@ function initGridstack() {
       });
 
       if (oldWidgets) {
-        if (stage.status == STATUS_IN_PROGRESS || stage.id == oldWidgets().stage.id) {
+        if (stage.status != STATUS_SUCCEEDED || stage.id == oldWidgets().stage.id) {
           updateWidgets(this, stage, oldWidgets);
         }
-        if (oldWidgets().stage.status != STATUS_IN_PROGRESS && stage.finished) {
+        if (oldWidgets().stage.status == STATUS_SUCCEEDED && stage.finished) {
           stage.name = 'Completed';
           updateWidgets(this, stage, oldWidgets);
         }
