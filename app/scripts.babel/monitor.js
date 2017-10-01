@@ -60,17 +60,10 @@ function onMessage() {
       windows.forEach(function (window) {
         window.tabs.forEach(function (tab) {
           if (tab.url.includes(AWS_CODEPIPELINE_URL)) {
-            chrome.tabs.sendMessage(tab.id, {},
+            chrome.tabs.sendMessage(tab.id, { tabId: tab.id },
               (pipeline) => {
                 if (pipeline) {
-                  pipeline.stages.forEach((stage) => {
-                    stage.id = stage.name + tab.id;
-                    stage.pipeline = {
-                      id: pipeline.name + tab.id,
-                      name: pipeline.name
-                    };
-                    controller.addNewWidget(stage);
-                  });
+                  controller.addNewWidget(pipeline);
                 }
               });
           }
@@ -146,19 +139,27 @@ function updateStatus(stage) {
 function initGridstack() {
   const Controller = function (widgets) {
     this.widgets = ko.observableArray(widgets);
-    this.addNewWidget = (stage) => {
+    this.addNewWidget = (pipeline) => {
       const oldWidgets = ko.utils.arrayFirst(this.widgets(), (currentWidgets) => {
-        return currentWidgets().stage.pipeline.id == stage.pipeline.id;
+        return currentWidgets().stage.pipeline.id == pipeline.id;
       });
 
+      let stage;
+      const stageInProgress = pipeline.stages.filter(stage => stage.status == STATUS_IN_PROGRESS)[0];
+      const stageFailed = pipeline.stages.filter(stage => stage.status == STATUS_FAILED)[0];
+      const stageSucceeded = pipeline.stages.filter(stage => stage.finished)[0];
+
+      if (stageInProgress) {
+        stage = stageInProgress;
+      } else if (stageFailed) {
+        stage = stageFailed;
+      } else {
+        stage = stageSucceeded;
+        stage.name = '';
+      }
+
       if (oldWidgets) {
-        if (stage.status == STATUS_IN_PROGRESS || stage.id == oldWidgets().stage.id) {
-          updateWidgets(this, stage, oldWidgets);
-        }
-        if (oldWidgets().stage.status == STATUS_SUCCEEDED && stage.finished) {
-          stage.name = 'Completed';
-          updateWidgets(this, stage, oldWidgets);
-        }
+        updateWidgets(this, stage, oldWidgets);
       } else {
         addWidgets(this, stage);
       }

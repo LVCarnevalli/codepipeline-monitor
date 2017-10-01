@@ -21,8 +21,8 @@
   ],
   "content_scripts": [{
     "matches": [
-      "http://*/*",
-      "https://*/*"
+      "http://*.aws.amazon.com/*",
+      "https://*.aws.amazon.com/*"
     ],
     "js": [
       "scripts/contentscript.js"
