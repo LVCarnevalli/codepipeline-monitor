@@ -1,10 +1,10 @@
 {
   "appName": {
-    "message": "codepipeline monitor",
+    "message": "AWS CodePipeline Monitor",
     "description": "The name of the application"
   },
   "appDescription": {
-    "message": "AWS Code Pipeline - Monitor",
+    "message": "Plugin monitor for AWS pipeline.",
     "description": "The description of the application"
   }
 }

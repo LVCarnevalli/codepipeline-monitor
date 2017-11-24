@@ -1,12 +1,38 @@
 'use strict';
 
-const MONITOR_URL = 'monitor.html';
+const options = {
+  codepipeline: {
+    url: 'console.aws.amazon.com/codepipeline',
+    statuses: {
+      succeeded: 'Succeeded',
+      failed: 'Failed',
+      progress: 'In Progress'
+    },
+    interval: 5000
+  },
+  plugins: {
+    autologin: {
+      active: false,
+      user: '',
+      password: '',
+      interval: 60000
+    },
+    slackonfailure: {
+      active: false,
+      username: '',
+      url: '',
+      channel: ''
+    },
+    autorefresh: {
+      active: false,
+      interval: 300000
+    }
+  }
+};
 
-chrome.browserAction.onClicked.addListener(function (tab) {
-  focusOrCreateTab(chrome.extension.getURL(MONITOR_URL));
-});
+const monitor = 'monitor.html';
 
-function focusOrCreateTab(url) {
+const focusOrCreateTab = (url) => {
   chrome.windows.getAll({
     'populate': true
   }, function (windows) {
@@ -33,3 +59,13 @@ function focusOrCreateTab(url) {
     }
   });
 }
+
+chrome.browserAction.onClicked.addListener(function (tab) {
+  focusOrCreateTab(chrome.extension.getURL(monitor));
+});
+
+chrome.runtime.onInstalled.addListener(function () {
+  chrome.storage.local.set({
+    'options': options
+  });
+});

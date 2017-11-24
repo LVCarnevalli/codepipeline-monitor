@@ -1,15 +1,9 @@
 'use strict';
 
-const AWS_CODEPIPELINE_URL = 'console.aws.amazon.com/codepipeline';
-
-const STATUS_SUCCEEDED = 'Succeeded';
-const STATUS_FAILED = 'Failed';
-const STATUS_IN_PROGRESS = 'In Progress';
-
 let widgets = [];
 let controller;
 
-function configureGridstack() {
+const configureGridstack = () => {
   ko.components.register('dashboard-grid', {
     viewModel: {
       createViewModel: function (controller, componentInfo) {
@@ -48,18 +42,61 @@ function configureGridstack() {
       '</div> '
     ].join('')
   });
-}
+};
 
-function onMessage() {
+const startGridstack = () => {
+  const Controller = function (widgets) {
+    this.widgets = ko.observableArray(widgets);
+    this.addNewWidget = (pipeline) => {
+      const oldWidgets = ko.utils.arrayFirst(this.widgets(), (currentWidgets) => {
+        return currentWidgets().stage.pipeline.id == pipeline.id;
+      });
+
+      let stage;
+      const stageInProgress = pipeline.stages.filter(stage => stage.status == window.codepipeline.statuses.progress)[0];
+      const stageFailed = pipeline.stages.filter(stage => stage.status == window.codepipeline.statuses.failed)[0];
+      const stageSucceeded = pipeline.stages.filter(stage => stage.finished)[0];
+
+      if (stageInProgress) {
+        stage = stageInProgress;
+      } else if (oldWidgets().stage.status == window.codepipeline.statuses.progress) {
+        if (stageFailed) {
+          stage = stageFailed;
+        } else if (stageSucceeded) {
+          stage = stageSucceeded;
+          stage.name = '';
+        }
+      }
+
+      if (oldWidgets) {
+        if (window.slack.active && oldWidgets().stage.status != window.codepipeline.statuses.failed
+          && stage && stage.status == window.codepipeline.statuses.failed) {
+          sendMessageSlack(pipeline.name, stage.name);
+        }
+        updateWidgets(this, stage, oldWidgets);
+      } else {
+        addWidgets(this, stage);
+        addOnChange();
+      }
+
+      return false;
+    };
+  };
+
+  controller = new Controller(widgets);
+  ko.applyBindings(controller);
+};
+
+const onMessage = () => {
   chrome.tabs.query({
     currentWindow: true
   }, (tabs) => {
     chrome.windows.getAll({
       populate: true
     }, function (windows) {
-      windows.forEach(function (window) {
-        window.tabs.forEach(function (tab) {
-          if (tab.url.includes(AWS_CODEPIPELINE_URL)) {
+      windows.forEach(function (windowsBrowser) {
+        windowsBrowser.tabs.forEach(function (tab) {
+          if (tab.url.includes(window.codepipeline.url)) {
             chrome.tabs.sendMessage(tab.id, { tabId: tab.id },
               (pipeline) => {
                 if (pipeline) {
@@ -71,9 +108,9 @@ function onMessage() {
       });
     });
   });
-}
+};
 
-function addWidgets(self, data) {
+const addWidgets = (self, data) => {
   self.widgets.push(ko.observable({
     stage: data,
     x: 0,
@@ -84,9 +121,9 @@ function addWidgets(self, data) {
   }));
 
   updateStatus(data);
-}
+};
 
-function updateWidgets(self, data, oldWidgets) {
+const updateWidgets = (self, data, oldWidgets) => {
   _.forEach($('.grid-stack > .grid-stack-item:visible'), (element) => {
     element = $(element);
     const node = element.data();
@@ -105,11 +142,11 @@ function updateWidgets(self, data, oldWidgets) {
   });
 
   updateStatus(data);
-}
+};
 
-function updateStatus(stage) {
+const updateStatus = (stage) => {
   switch (stage.status) {
-    case STATUS_FAILED:
+    case window.codepipeline.statuses.failed:
       $(document
         .querySelector(`[data-pipeline-id="${stage.pipeline.id}"]`)
         .querySelector('.grid-stack-item-content'))
@@ -117,7 +154,7 @@ function updateStatus(stage) {
         .removeClass('status-inprogress')
         .addClass('status-error');
       break;
-    case STATUS_IN_PROGRESS:
+    case window.codepipeline.statuses.progress:
       $(document
         .querySelector(`[data-pipeline-id="${stage.pipeline.id}"]`)
         .querySelector('.grid-stack-item-content'))
@@ -125,7 +162,7 @@ function updateStatus(stage) {
         .removeClass('status-error')
         .addClass('status-inprogress');
       break;
-    case STATUS_SUCCEEDED:
+    case window.codepipeline.statuses.succeeded:
       $(document
         .querySelector(`[data-pipeline-id="${stage.pipeline.id}"]`)
         .querySelector('.grid-stack-item-content'))
@@ -134,47 +171,52 @@ function updateStatus(stage) {
         .addClass('status-succeeded');
       break;
   }
-}
+};
 
-function initGridstack() {
-  const Controller = function (widgets) {
-    this.widgets = ko.observableArray(widgets);
-    this.addNewWidget = (pipeline) => {
-      const oldWidgets = ko.utils.arrayFirst(this.widgets(), (currentWidgets) => {
-        return currentWidgets().stage.pipeline.id == pipeline.id;
-      });
-
-      let stage;
-      const stageInProgress = pipeline.stages.filter(stage => stage.status == STATUS_IN_PROGRESS)[0];
-      const stageFailed = pipeline.stages.filter(stage => stage.status == STATUS_FAILED)[0];
-      const stageSucceeded = pipeline.stages.filter(stage => stage.finished)[0];
-
-      if (stageInProgress) {
-        stage = stageInProgress;
-      } else if (stageFailed) {
-        stage = stageFailed;
-      } else {
-        stage = stageSucceeded;
-        stage.name = '';
+const sendMessageSlack = (pipelineName, stageName) => {
+  var data = JSON.stringify({
+    'username': window.slack.username,
+    'icon_url': 'https://d0.awsstatic.com/Projects/aws-product-service-icon/codepipeline_console_icon.png',
+    'channel': window.slack.channel,
+    'attachments': [
+      {
+        'color': 'danger',
+        'text': pipelineName + ': ' + stageName + ' - Failed'
       }
-
-      if (oldWidgets) {
-        updateWidgets(this, stage, oldWidgets);
-      } else {
-        addWidgets(this, stage);
-      }
-
-      return false;
-    };
-  };
-
-  controller = new Controller(widgets);
-  ko.applyBindings(controller);
-}
+    ]
+  });
+  var xhr = new XMLHttpRequest();
+  xhr.withCredentials = false;
+  xhr.open('POST', window.slack.url);
+  xhr.setRequestHeader('content-type', 'application/json');
+  xhr.send(data);
+};
 
 window.onload = () => {
-  configureGridstack();
-  initGridstack();
+  chrome.storage.local.get('options', (value) => {
+    window.codepipeline = value.options.codepipeline;
+    window.slack = value.options.plugins.slackonfailure;
 
-  setInterval(onMessage, 5000);
-}
+    configureGridstack();
+    startGridstack();
+
+    setInterval(onMessage, codepipeline.interval);
+  });
+};
+
+const addOnChange = () => {
+  $('.grid-stack').on('change', function (event, items) {
+    let grid = _.map($('.grid-stack .grid-stack-item:visible'), function (el) {
+      el = $(el);
+      let node = el.data('_gridstack_node');
+      return {
+        id: el.attr('data-pipeline-id'),
+        x: node.x,
+        y: node.y,
+        width: node.width,
+        height: node.height
+      };
+    });
+    window.history.pushState('', '', '?grid=' + JSON.stringify(grid));
+  });
+};

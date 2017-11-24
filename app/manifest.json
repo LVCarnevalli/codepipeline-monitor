@@ -16,6 +16,7 @@
   },
   "permissions": [
     "tabs",
+    "storage",
     "http://*/*",
     "https://*/*"
   ],
@@ -25,7 +26,9 @@
       "https://*.aws.amazon.com/*"
     ],
     "js": [
-      "scripts/contentscript.js"
+      "scripts/contentscripts/codepipeline.js",
+      "scripts/contentscripts/autorefresh.js",
+      "scripts/contentscripts/autologin.js"
     ],
     "run_at": "document_end",
     "all_frames": false
@@ -36,6 +39,11 @@
       "19": "images/icon-19.png",
       "38": "images/icon-38.png"
     },
-    "default_title": "codepipeline monitor"
+    "default_title": "__MSG_appName__"
+  },
+  "options_page": "options.html",
+  "options_ui": {
+    "page": "options.html",
+    "chrome_style": true
   }
 }
