@@ -5,7 +5,7 @@ Ao invés de deixar várias abas do Code Pipeline abertas dificultando a visuali
 
 ![](https://github.com/LVCarnevalli/codepipeline-monitor/blob/master/screen.png?raw=true)
 
-###Como utilizar:
+### Como utilizar:
 ------------
 
 1. Abra o endereço do AWS Code Pipeline nas abas do Chrome.
@@ -15,7 +15,7 @@ Ao invés de deixar várias abas do Code Pipeline abertas dificultando a visuali
 
 2. Clique no ícone da extensão que o dashboard será criado.
 
-###Configuração:
+### Configuração:
 ------------
 
 Abra as opções da extensão e configure de acordo com a sua necessidade:
@@ -59,7 +59,7 @@ Abra as opções da extensão e configure de acordo com a sua necessidade:
 
 Para alterar as configurações basta alterar o JSON e fechar a janela de opções.
 
-###Desenvolvimento:
+### Desenvolvimento:
 ------------
 
 **Ambiente:**
