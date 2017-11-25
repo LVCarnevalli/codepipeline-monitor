@@ -59,24 +59,23 @@ const startGridstack = () => {
 
       if (stageInProgress) {
         stage = stageInProgress;
-      } else if (oldWidgets().stage.status == window.codepipeline.statuses.progress) {
-        if (stageFailed) {
-          stage = stageFailed;
-        } else if (stageSucceeded) {
-          stage = stageSucceeded;
-          stage.name = '';
-        }
+      } else if (stageFailed) {
+        stage = stageFailed;
+      } else {
+        stage = stageSucceeded;
+        stage.name = '';
       }
 
       if (oldWidgets) {
-        if (window.slack.active && oldWidgets().stage.status != window.codepipeline.statuses.failed
-          && stage && stage.status == window.codepipeline.statuses.failed) {
+        if (window.slack.active && stage
+          && stage.status == window.codepipeline.statuses.failed
+          && oldWidgets().stage.id == stage.id
+          && oldWidgets().stage.status == window.codepipeline.statuses.progress) {
           sendMessageSlack(pipeline.name, stage.name);
         }
         updateWidgets(this, stage, oldWidgets);
       } else {
         addWidgets(this, stage);
-        addOnChange();
       }
 
       return false;

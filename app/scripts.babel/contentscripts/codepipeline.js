@@ -21,7 +21,7 @@ const codePipelinePage = {
     },
     pipelineActionStatus(action) {
         const statusComponent = action.querySelectorAll('.pipelines-view-action-state-status')[0];
-        let statusName = '';
+        let statusName = 'Succeeded';
         if (statusComponent) {
             statusName = this._format(statusComponent.outerText);
         }
@@ -29,7 +29,7 @@ const codePipelinePage = {
     },
     pipelineActionTime(action) {
         const timeComponent = action.querySelectorAll('.pipelines-view-action-state-timestamp')[0];
-        let timeName = '';
+        let timeName = 'about a while';
         if (timeComponent) {
             timeName = this._format(timeComponent.outerText);
         }
