@@ -1,3 +1,4 @@
+[![Chrome Web Store](https://img.shields.io/badge/chrome_web_store-1.0.1-blue.svg)](https://chrome.google.com/webstore/detail/aws-codepipeline-monitor/dpepmckhnfcjpombfjdodpggbhhlbjcg)
 # AWS CodePipeline Monitor
 Extensão do Google Chrome utilizada para criar um monitor com as informações de build da AWS Code Pipeline.
 
@@ -49,14 +50,19 @@ Abra as opções da extensão e configure de acordo com a sua necessidade:
             }
         }
     }
+    
+
+Para alterar as configurações basta alterar o JSON e fechar a janela de opções.
+
+Explicação das opções:
 
 | Plugin           | Configuração  |
-| ---------------- |:-------------:|
+| ---------------- |---------------|
 | autologin        | Ao identificar que a sessão do AWS foi interrompida o login será feito preenchendo o usuário e senha configurado e acionando o botão login.                  |
 | autorefresh      | Atualiza a página do pipeline de acordo com o tempo configurado.            |
 | slackonfailure   | Se falhar alguma build uma mensagem será enviada para o Slack configurado.      | 
 
-Para alterar as configurações basta alterar o JSON e fechar a janela de opções.
+
 
 ### Desenvolvimento:
 ------------
